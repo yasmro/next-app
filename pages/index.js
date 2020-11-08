@@ -1,7 +1,9 @@
 import Head from 'next/head'
+import Link from "next/link";
+import fetch from "isomorphic-unfetch";
 import styles from '../styles/Home.module.css'
 
-export default function Home() {
+const Home = (props) => {
   return (
     <div className={styles.container}>
       <Head>
@@ -48,6 +50,21 @@ export default function Home() {
             </p>
           </a>
         </div>
+
+        <div>
+            <h1>Batman TV Shows</h1>
+            <ul>
+            {props.shows ? 
+                props.shows.map(show => (
+                <li key={show.id}>
+                    <Link href="/shows/[id]" as={`/shows/${show.id}`}>
+                        <a>{show.name}</a>
+                    </Link>
+                </li>
+            )) : <h1>null</h1>}
+            </ul>
+        </div>
+
       </main>
 
       <footer className={styles.footer}>
@@ -63,3 +80,13 @@ export default function Home() {
     </div>
   )
 }
+
+Home.getInitialProps = async function() {
+  const res = await fetch("https://api.tvmaze.com/search/shows?q=batman");
+  const data = await res.json();
+  console.log(`Show data fetched. Count: ${data.length}`);
+  console.log(data)
+  return { shows: data.map(entry => entry.show) };
+};
+
+export default Home;
